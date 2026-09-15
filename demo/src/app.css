@@ -1,0 +1,225 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #eef1f6;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 20rem;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
+
+.demo-shell {
+  min-height: 100vh;
+  padding: clamp(1.25rem, 4vw, 4rem);
+  color-scheme: light;
+  background:
+    radial-gradient(circle at 15% 0%, rgb(62 107 255 / 0.12), transparent 30rem),
+    linear-gradient(180deg, #f8faff, #edf0f5);
+  color: #172033;
+}
+
+.demo-shell.theme-dark {
+  color-scheme: dark;
+  background:
+    radial-gradient(circle at 15% 0%, rgb(89 128 255 / 0.18), transparent 32rem),
+    linear-gradient(180deg, #121722, #0b0f17);
+  color: #eef2fb;
+}
+
+.hero,
+.editor-card,
+.headless-card {
+  width: min(100%, 58rem);
+  margin-inline: auto;
+}
+
+.hero {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  color: #4267dc;
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-dark .eyebrow {
+  color: #8aa7ff;
+}
+
+h1,
+h2 {
+  margin: 0;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+h1 {
+  max-width: 14ch;
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
+.lede {
+  max-width: 42rem;
+  margin: 1rem 0 0;
+  color: #5e687b;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.65;
+}
+
+.theme-dark .lede,
+.theme-dark .toolbar-note,
+.theme-dark .headless-card p {
+  color: #aeb8ca;
+}
+
+.display-controls,
+.headless-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.display-controls button,
+.headless-actions button {
+  border: 1px solid rgb(99 112 139 / 0.3);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.7);
+  color: inherit;
+  cursor: pointer;
+  padding: 0.55rem 0.85rem;
+}
+
+.theme-dark .display-controls button,
+.theme-dark .headless-actions button {
+  background: rgb(255 255 255 / 0.06);
+  border-color: rgb(255 255 255 / 0.14);
+}
+
+.editor-card,
+.headless-card {
+  border: 1px solid rgb(99 112 139 / 0.2);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: 0 24px 70px rgb(29 39 65 / 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.theme-dark .editor-card,
+.theme-dark .headless-card {
+  border-color: rgb(255 255 255 / 0.12);
+  background: rgb(24 30 43 / 0.9);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.3);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0.45rem 0.7rem;
+  border-bottom: 1px solid rgb(99 112 139 / 0.18);
+}
+
+.toolbar-note {
+  color: #6b7485;
+  font-size: 0.8rem;
+}
+
+.editor {
+  min-height: 19rem;
+  padding: clamp(1.2rem, 3vw, 2.2rem);
+}
+
+.editor .ProseMirror {
+  min-height: 15rem;
+  outline: none;
+}
+
+.editor .ProseMirror p {
+  margin: 0 0 1rem;
+  line-height: 1.75;
+}
+
+.editor .ProseMirror a {
+  color: #315fd4;
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
+}
+
+.theme-dark .editor .ProseMirror a {
+  color: #8cabff;
+}
+
+.headless-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding: 1.1rem 1.25rem;
+}
+
+.headless-card p {
+  margin: 0.4rem 0 0;
+  color: #667085;
+}
+
+.current-href {
+  max-width: 38rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headless-actions .danger {
+  color: #bd3030;
+}
+
+code {
+  border-radius: 0.3rem;
+  background: rgb(75 91 130 / 0.1);
+  padding: 0.1rem 0.3rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+
+@media (max-width: 43rem) {
+  .hero,
+  .headless-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .display-controls,
+  .headless-actions {
+    justify-content: flex-start;
+  }
+
+  .toolbar-note {
+    display: none;
+  }
+}

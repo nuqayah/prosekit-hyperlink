@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tgz
+.vite/
+coverage/
+.DS_Store
+.svelte-kit/
+test-results/
+playwright-report/
