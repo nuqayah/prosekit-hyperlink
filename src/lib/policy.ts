@@ -78,6 +78,7 @@ const SCHEME_RE = /^([a-z][a-z\d+.-]*):/i
 const CONTROL_RE = /[\u0000-\u001f\u007f-\u009f\u2028\u2029\ufeff]/u
 const WHITESPACE_RE = /\p{White_Space}/u
 const PHONE_RE = /^\+[\d\s().-]+$/u
+const EMAIL_LOCAL_RE = /^[A-Za-z0-9._+-]+$/u
 const PHONE_MATCH_RE = /(^|[^\p{L}\p{N}])(\+[\d\s().-]*\d)(?=$|[^\p{L}\p{N}])/gu
 const CUSTOM_PROTOCOL_TAIL_RE = /^(?:\/\/)?[^\s<>{}\[\]]+/u
 const DANGEROUS_SCHEMES = new Set(['blob', 'data', 'file', 'javascript', 'vbscript'])
@@ -159,7 +160,7 @@ export function createHyperlinkPolicy(options: HyperlinkPolicyOptions = {}): Hyp
       }
       if (scheme === 'mailto') {
         const address = value.slice(schemeMatch[0].length).split('?', 1)[0]
-        return address && exactMatch(linkify, address, 'mailto:')
+        return validateEmail(address)
           ? accept({input: value, href: value, kind: 'email'}, context, resolved)
           : reject('invalid_email')
       }
@@ -196,7 +197,7 @@ export function createHyperlinkPolicy(options: HyperlinkPolicyOptions = {}): Hyp
         : reject('invalid_url')
     }
 
-    if (exactMatch(linkify, value, 'mailto:')) {
+    if (validateEmail(value)) {
       return accept({input: value, href: `mailto:${value}`, kind: 'email'}, context, resolved)
     }
 
@@ -276,6 +277,36 @@ function reject(reason: HyperlinkFailureReason): RejectedHyperlink {
   return {ok: false, reason}
 }
 
+function hasSafeUnicodeHostnameCharacters(value: string): boolean {
+  return Array.from(value).every(character =>
+    /^[\x00-\x7f]$/u.test(character) ||
+    /^[\p{L}\p{M}\u3002\uff0e\uff61]$/u.test(character)
+  )
+}
+
+function validateEmail(value: string): boolean {
+  if (value.length > 254 || value.split('@').length !== 2) return false
+  const [local = '', domain = ''] = value.split('@')
+  if (
+    !local ||
+    local.length > 64 ||
+    local.startsWith('.') ||
+    local.endsWith('.') ||
+    local.includes('..') ||
+    !EMAIL_LOCAL_RE.test(local) ||
+    domain.includes('%') ||
+    !hasSafeUnicodeHostnameCharacters(domain)
+  ) return false
+
+  if (/^[\x00-\x7f]+$/u.test(domain)) return isPlausibleHostname(domain)
+  try {
+    const url = new URL(`https://${domain}`)
+    return url.pathname === '/' && !url.search && !url.hash && isPlausibleHostname(url.hostname)
+  } catch {
+    return false
+  }
+}
+
 function normalizePhone(value: string): string | null {
   if (!PHONE_RE.test(value)) return null
   const digits = value.replace(/\D/g, '')
@@ -284,6 +315,26 @@ function normalizePhone(value: string): string | null {
 }
 
 function validateWebUrl(value: string): boolean {
+  const scheme = /^https?:\/\//iu.exec(value)
+  if (!scheme) return false
+
+  const authority = value.slice(scheme[0].length).split(/[/?#]/u, 1)[0] ?? ''
+  if (
+    !authority ||
+    authority.includes('%') ||
+    authority.includes('@') ||
+    !hasSafeUnicodeHostnameCharacters(authority)
+  ) return false
+
+  const bracketed = authority.startsWith('[')
+  const rawHostname = bracketed
+    ? authority.slice(0, authority.indexOf(']') + 1)
+    : authority.split(':', 1)[0] ?? ''
+  if (!rawHostname) return false
+  if (!bracketed && /^[\x00-\x7f]+$/u.test(rawHostname) && !isPlausibleHostname(rawHostname)) {
+    return false
+  }
+
   try {
     const url = new URL(value)
     if (!['http:', 'https:'].includes(url.protocol)) return false
@@ -299,8 +350,9 @@ function isPlausibleHostname(hostname: string): boolean {
   if (host === 'localhost') return true
   if (/^\[[\da-f:]+\]$/iu.test(host)) return true
   if (/^\d+(?:\.\d+){3}$/u.test(host)) {
-    return host.split('.').every(part => Number(part) <= 255)
+    return host.split('.').every(part => String(Number(part)) === part && Number(part) <= 255)
   }
+  if (host.length > 253) return false
 
   const labels = host.split('.')
   return labels.length >= 2 && labels.every(label =>

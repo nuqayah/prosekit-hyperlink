@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Rejected malformed HTTP authorities and browser-reinterpreted host forms before URL parsing.
 - Made Floating UI an optional peer so headless consumers do not install the Svelte positioning layer.
 - Added an opt-in legacy-href storage mode that keeps old PM JSON loadable while normalizing accepted destinations and rendering unsafe ones inert.
 - Added a host paste-slice transform hook that composes sanitization with linkification.

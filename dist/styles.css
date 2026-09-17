@@ -1,0 +1,238 @@
+:root {
+  --pkh-bg: light-dark(#ffffff, #20242c);
+  --pkh-fg: light-dark(#16181d, #f5f6f8);
+  --pkh-muted: light-dark(#667085, #a7afbe);
+  --pkh-border: light-dark(#e1e5eb, #3b424f);
+  --pkh-hover: light-dark(#f3f5f8, #303641);
+  --pkh-accent: light-dark(#2563eb, #78a7ff);
+  --pkh-accent-fg: light-dark(#ffffff, #0d1b35);
+  --pkh-danger: light-dark(#c93636, #ff8585);
+  --pkh-radius: 0.7rem;
+  --pkh-shadow: 0 18px 45px rgb(0 0 0 / 0.16), 0 2px 8px rgb(0 0 0 / 0.08);
+  --pkh-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.pkh-button,
+.pkh-icon-button,
+.pkh-back {
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pkh-button {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+}
+
+.pkh-button:hover,
+.pkh-button[aria-pressed="true"],
+.pkh-icon-button:hover,
+.pkh-back:hover {
+  background: var(--pkh-hover);
+}
+
+.pkh-button:focus-visible,
+.pkh-popover button:focus-visible,
+.pkh-popover input:focus-visible {
+  outline: 2px solid var(--pkh-accent);
+  outline-offset: 2px;
+}
+
+.pkh-button svg,
+.pkh-icon-button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pkh-popover {
+  z-index: 9999;
+  min-width: min(21rem, calc(100vw - 1rem));
+  overflow: auto;
+  border: 1px solid var(--pkh-border);
+  border-radius: var(--pkh-radius);
+  background: var(--pkh-bg);
+  color: var(--pkh-fg);
+  box-shadow: var(--pkh-shadow);
+  font: 0.875rem/1.4 var(--pkh-font);
+  transform-origin: var(--transform-origin, center);
+  animation: pkh-enter 120ms ease-out;
+}
+
+.pkh-preview,
+.pkh-form {
+  padding: 0.65rem;
+}
+
+.pkh-preview {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.pkh-destination {
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--pkh-accent);
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pkh-actions,
+.pkh-form-actions,
+.pkh-heading {
+  display: flex;
+  align-items: center;
+}
+
+.pkh-actions {
+  gap: 0.15rem;
+}
+
+.pkh-icon-button,
+.pkh-back {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.45rem;
+}
+
+.pkh-danger {
+  color: var(--pkh-danger);
+}
+
+.pkh-status {
+  color: var(--pkh-muted);
+  font-size: 0.78rem;
+}
+
+.pkh-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pkh-heading {
+  gap: 0.35rem;
+}
+
+.pkh-field {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--pkh-muted);
+  font-size: 0.78rem;
+}
+
+.pkh-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.35rem;
+  border: 1px solid var(--pkh-border);
+  border-radius: 0.5rem;
+  background: var(--pkh-bg);
+  color: var(--pkh-fg);
+  font: 0.875rem/1.2 var(--pkh-font);
+  padding: 0.55rem 0.65rem;
+}
+
+.pkh-field input[aria-invalid="true"] {
+  border-color: var(--pkh-danger);
+}
+
+.pkh-error {
+  margin: -0.25rem 0 0;
+  color: var(--pkh-danger);
+  font-size: 0.78rem;
+}
+
+.pkh-form-actions {
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.pkh-primary,
+.pkh-secondary {
+  min-height: 2.2rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font: 600 0.82rem/1 var(--pkh-font);
+  padding: 0 0.8rem;
+}
+
+.pkh-primary {
+  background: var(--pkh-accent);
+  color: var(--pkh-accent-fg);
+}
+
+.pkh-secondary {
+  border-color: var(--pkh-border);
+  background: transparent;
+  color: var(--pkh-fg);
+}
+
+.pkh-arrow {
+  position: absolute;
+  width: 0.65rem;
+  height: 0.65rem;
+  border: solid var(--pkh-border);
+  border-width: 1px 0 0 1px;
+  background: var(--pkh-bg);
+  transform: rotate(45deg);
+}
+
+.pkh-popover[data-side="top"] .pkh-arrow {
+  bottom: -0.38rem;
+  transform: rotate(225deg);
+}
+
+.pkh-popover[data-side="bottom"] .pkh-arrow {
+  top: -0.38rem;
+  transform: rotate(45deg);
+}
+
+.pkh-popover[data-side="left"] .pkh-arrow {
+  right: -0.38rem;
+  transform: rotate(135deg);
+}
+
+.pkh-popover[data-side="right"] .pkh-arrow {
+  left: -0.38rem;
+  transform: rotate(315deg);
+}
+
+.pkh-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes pkh-enter {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pkh-popover { animation: none; }
+}
+
+@media (forced-colors: active) {
+  .pkh-popover,
+  .pkh-field input,
+  .pkh-secondary { border-color: CanvasText; }
+}

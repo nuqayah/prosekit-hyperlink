@@ -9,6 +9,7 @@ describe('createHyperlinkPolicy', () => {
     ['example.com', 'https://example.com', 'url'],
     ['www.example.com/a(b)', 'https://www.example.com/a(b)', 'url'],
     ['person@example.com', 'mailto:person@example.com', 'email'],
+    ['person+tag@example.com', 'mailto:person+tag@example.com', 'email'],
     ['+1 (202) 555-0100', 'tel:+12025550100', 'phone'],
     ['tel:+962 79 123 4567', 'tel:+962791234567', 'phone'],
     ['/docs/start', '/docs/start', 'relative'],
@@ -17,6 +18,8 @@ describe('createHyperlinkPolicy', () => {
     ['http://localhost:3000/a', 'http://localhost:3000/a', 'url'],
     ['https://[::1]/a', 'https://[::1]/a', 'url'],
     ['例子.测试', 'https://例子.测试', 'url'],
+    ['ᆑ.com', 'https://ᆑ.com', 'url'],
+    ['ﹽ.com', 'https://ﹽ.com', 'url'],
     ['mailto:person@example.com?subject=hello', 'mailto:person@example.com?subject=hello', 'email'],
   ] as const)('normalizes %s', (input, href, kind) => {
     expect(policy.normalize(input)).toEqual({ok: true, input, href, kind})
@@ -30,15 +33,53 @@ describe('createHyperlinkPolicy', () => {
     ['https://googlecom', 'invalid_url'],
     ['https://user:pass@example.com', 'invalid_url'],
     ['https://a..com', 'invalid_url'],
+    ['https://example.com..', 'invalid_url'],
+    ['https:example.com', 'invalid_url'],
+    ['https:/example.com', 'invalid_url'],
+    ['https:///example.com', 'invalid_url'],
+    ['https://%65xample.com', 'invalid_url'],
+    ['http://2130706433', 'invalid_url'],
+    ['http://0x7f000001', 'invalid_url'],
+    ['http://0177.0.0.1', 'invalid_url'],
     ['https://999.999.999.999', 'invalid_url'],
+    ['https://example.123', 'invalid_url'],
+    ['https://Sy2Qj.6', 'invalid_url'],
+    ['https://a.0', 'invalid_url'],
+    ['https://☃.com', 'invalid_url'],
+    ['https://😀.com', 'invalid_url'],
+    ['https://١.com', 'invalid_url'],
     ['\\\\evil.example', 'invalid_url'],
     ['//example.com', 'invalid_url'],
     ['5551234567', 'invalid_url'],
     ['tel:5551234567', 'invalid_phone'],
+    ['mailto:a,b@example.com', 'invalid_email'],
+    ['mailto:a"b@example.com', 'invalid_email'],
+    ['mailto:ü@example.com', 'invalid_email'],
+    ['\u001chttps://example.com', 'invalid_url'],
+    ['\u0085https://example.com', 'invalid_url'],
     ['+123', 'invalid_url'],
     ['', 'empty'],
   ] as const)('rejects %s', (input, reason) => {
     expect(policy.normalize(input)).toEqual({ok: false, reason})
+  })
+
+  it('rejects email over the UTF-16 length limit', () => {
+    const domain = Array.from({length: 4}, () => '𐐀'.repeat(35)).join('.')
+    expect(policy.normalize(`mailto:a@${domain}`)).toEqual({ok: false, reason: 'invalid_email'})
+  })
+
+  it('trims a boundary BOM like browser string trimming', () => {
+    expect(policy.normalize('\ufeffhttps://example.com')).toEqual({
+      ok: true,
+      input: 'https://example.com',
+      href: 'https://example.com',
+      kind: 'url',
+    })
+  })
+
+  it('rejects a hostname longer than the DNS limit', () => {
+    const hostname = `${'a'.repeat(63)}.${'b'.repeat(63)}.${'c'.repeat(63)}.${'d'.repeat(62)}`
+    expect(policy.normalize(`https://${hostname}`)).toEqual({ok: false, reason: 'invalid_url'})
   })
 
   it('allows protocol-relative URLs only when explicitly enabled', () => {
@@ -173,6 +214,15 @@ describe('createHyperlinkPolicy', () => {
     expect(urlsOnly.find('example.com person@example.com +962791234567').map(match => match.kind)).toEqual([
       'url',
     ])
+  })
+
+  it('measures maximum length in UTF-16 code units', () => {
+    const prefix = 'https://example.com/'
+    expect(policy.normalize(`${prefix}${'😀'.repeat(1_014)}`).ok).toBe(true)
+    expect(policy.normalize(`${prefix}${'😀'.repeat(1_015)}`)).toEqual({
+      ok: false,
+      reason: 'too_long',
+    })
   })
 
   it('rejects oversized input', () => {
